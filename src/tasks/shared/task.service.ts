@@ -1,50 +1,35 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose'
 import { Task } from './task';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class TaskService {
-  tasks: Task[] = [
-    {id: 1, description: 'Tarefa 1', completed: false},
-    {id: 2, description: 'Tarefa 2', completed: true},
-  ];
 
-  getAll(): Task[] {
-    return this.tasks;
+  constructor(@InjectModel('Task') private readonly taskModel: Model<Task>) {}
+
+  async getAll(): Promise<Task[]>{
+    return await this.taskModel.find().exec();
   }
 
-  getById(id: number): Task{
-    const task = this.tasks.find((task) => task.id == id);
+  async getById(id: string): Promise<Task>{
+    const task = await this.taskModel.findById(id).exec();
     return task
   }
 
-  create(task: Task): Task {
-    let lastId = 0;
+  async create(task: Task): Promise<Task> {
+    const createdTask = new this.taskModel  (task)
 
-    if(this.tasks.length > 0) {
-      lastId = this.tasks[this.tasks.length - 1].id
-    }
-
-    task.id = lastId + 1;
-    this.tasks.push(task);
-
-    return task
-
+    return createdTask.save()
   }
-  update(task: Task): Task {
-    const taskArray = this.getById(task.id);
+  async update(id: string, task: Task): Promise<Task> {
+    await this.taskModel.updateOne({ _id: id }, task).exec()
 
-    if(taskArray) {
-      taskArray.description = task.description;
-      taskArray.completed = task.completed;
-    }
-
-    return taskArray  ;
+    return this.getById(id)
   }
 
-  delete(id: number): void {
-    const index = this.tasks.findIndex((task) => task.id == id);
-
-    this.tasks.splice(index, 1);
+  async delete(id: string): Promise<void> {
+     await this.taskModel.deleteOne({_id: id}).exec()
   }
 
 
