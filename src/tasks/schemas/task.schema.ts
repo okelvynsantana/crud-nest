@@ -1,8 +1,14 @@
 import * as mongoose from 'mongoose';
 
 export const TaskSchema = new mongoose.Schema({
-  description: String,
-  completed: Boolean,
-})
+  description: {
+    type: String,
+    required: true,
+  },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 
