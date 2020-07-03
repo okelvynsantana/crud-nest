@@ -9,8 +9,12 @@ import { User } from './user';
 export class UserService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>){}
 
+  async getByEmail(email: string): Promise<User> {
+    return await this.userModel.findOne({ email }).exec()
+  }
+
   async create({email, password, name}: User): Promise<User> {
-    const checkUserExists = await this.userModel.findOne({ email })
+    const checkUserExists = this.getByEmail(email)
 
     if(checkUserExists) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST)

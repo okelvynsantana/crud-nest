@@ -14,7 +14,7 @@ export const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-});
+}, { timestamps: true });
 
 UserSchema.set('toJSON', {
   transform: function(doc, ret, opt) {
